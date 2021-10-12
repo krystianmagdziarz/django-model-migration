@@ -1,0 +1,11 @@
+version: "3.3"
+
+services:
+  backend:
+    build:
+      context: ./dj_migration
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./dj_migration:/code
+    ports:
+      - "8000:8000"
