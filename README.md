@@ -10,6 +10,12 @@
 ### Komendy:
 
 ```shell script
+docker-compose build
+```
+
+kolejnno
+
+```shell script
 docker-compose run backend bash
 ```
 
