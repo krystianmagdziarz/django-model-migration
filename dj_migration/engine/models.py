@@ -1,4 +1,14 @@
+from django.utils.translation import gettext_lazy as _
 from django.db import models
+from django.core.exceptions import ValidationError
+
+
+def validate_user_phone(value):
+    if User.objects.filter(phone=value).exists():
+        raise ValidationError(
+            _('%(value)s is not a unique phone number'),
+            params={'value': value},
+        )
 
 
 class Subscriber(models.Model):
@@ -31,8 +41,10 @@ class Client(models.Model):
 class User(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     email = models.EmailField()
-    phone = models.CharField(max_length=15)
+    phone = models.CharField(max_length=15, validators=[validate_user_phone])
     gdpr_consent = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.email} - {self.phone}"
+
+

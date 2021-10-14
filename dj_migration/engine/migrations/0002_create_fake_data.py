@@ -11,11 +11,49 @@ from engine.models import Subscriber, SubscriberSMS, Client, User
 def generate_fake_data(apps, schema_editor):
     fake = Faker("pl_PL")
 
+    # ======= Subscriber =======
+
     for x in range(randint(10, 50)):
         Subscriber.objects.create(email=fake.email(), gdpr_consent=fake.pybool())
 
+    """
+        Jeśli istnieje Client z polem email takim jak Subscriber.email i istnieje User 
+        z polem phone takim jak Client.phone i polem email różnym od Client.email 
+        zapisz id i email subskrybenta do pliku subscriber_conflicts.csv
+    """
+    phone = fake.phone_number()
+    Client.objects.create(email=Subscriber.objects.all()[0].email, phone=phone)
+    User.objects.create(email=fake.email(), phone=phone)
+
+    """
+        Jeśli istnieje Client z polem email takim jak Subscriber.email i nie istnieje User 
+        z polem phone takim jak Client.phone i polem email różnym od Client.email 
+        stwórz użytkownika na podstawie modelu Client
+    """
+    Client.objects.create(email=Subscriber.objects.all()[1].email, phone=fake.phone_number())
+    User.objects.create(email=fake.email(), phone=fake.phone_number())
+
+    # ======= SubscriberSMS =======
+
     for x in range(randint(10, 40)):
         SubscriberSMS.objects.create(phone=fake.phone_number(), gdpr_consent=fake.pybool())
+
+    """
+        Jeśli istnieje Client z polem phone takim jak SubscriberSMS.phone i istnieje User 
+        z polem email takim jak Client.email i polem phone różnym od Client.phone 
+        zapisz id i email subskrybenta do pliku subscribersms_conflicts.csv
+    """
+    email = fake.email()
+    Client.objects.create(phone=SubscriberSMS.objects.all()[0].phone, email=email)
+    User.objects.create(phone=fake.phone_number(), email=email)
+
+    """
+        Jeśli istnieje Client z polem email takim jak SubscriberSMS.phone i nie istnieje User 
+        z polem email takim jak Client.email i polem phone różnym od Client.phone 
+        stwórz użytkownika na podstawie modelu Client
+    """
+    Client.objects.create(phone=SubscriberSMS.objects.all()[1].phone, email=fake.email())
+    User.objects.create(phone=fake.phone_number(), email=fake.email())
 
 
 class Migration(migrations.Migration):
